@@ -1,0 +1,57 @@
+# python
+__pycache__/
+*.py[cod]
+*.egg-info
+*.egg
+*.dist-info
+*.whl
+*.so
+*.pyd
+*.pyo
+*.pyc
+*.pyd
+*.pyo
+*.pyc
+*.pyd
+*.pyo
+*.pyc
+*.pyd
+*.pyo
+*.pyc
+*.pyd
+*.pyo
+*.pyc
+*.pyd
+.venv
+__pycache__/
+.mypy_cache/
+
+# linux
+*~
+*.swp
+*.swo
+*.swx
+*.swn
+*.swm
+*.swp
+*.swx
+*.swm
+*.swp
+*.swx
+*.swm
+*.swp
+*.swx
+*.swm
+*.swp
+*.swx
+*.swm
+*.swp
+*.swx
+*.swm
+*.swp
+*.swx
+*.swm
+# windows
+Thumbs.db
+# macos
+.DS_Store

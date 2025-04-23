@@ -11,7 +11,7 @@ def bubblesort(arr):
             if arr[j] > arr[j+1]:
                 arr[j], arr[j+1] = arr[j+1], arr[j]
                 swapped = True
-                
+
         if not swapped:
             end_time = perf_counter()
             print(f"Time taken for sorting: {end_time - start_time:.6f} seconds")

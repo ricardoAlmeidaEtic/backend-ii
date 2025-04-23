@@ -30,7 +30,7 @@
 	"containerEnv": {
 		"POETRY_VIRTUALENVS_IN_PROJECT": "1"
 	}
-	
+
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 

@@ -8,18 +8,18 @@ class CreditCardPayment(PaymentService):
     def process(self, amount: float):
         # Logic for processing credit card payment
         return {"message": f"Processed {amount} using credit card"}
-    
+
 class PayPalPayment(PaymentService):
     def process(self, amount: float):
         # Logic for processing PayPal payment
         return {"message": f"Processed {amount} using PayPal"}
-    
+
 class BitcoinPayment(PaymentService):
     def process(self, amount: float):
         # Logic for processing Bitcoin payment
         return {"message": f"Processed {amount} using Bitcoin"}
-    
-    
+
+
 class PaymentGateway:
     registry = {
         "credit_card": CreditCardPayment,

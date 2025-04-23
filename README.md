@@ -627,7 +627,7 @@ gRPC is a high-performance RPC framework that uses Protocol Buffers for data ser
 
     if __name__ == "__main__":
         serve()
-    ``` 
+    ```
 ### Exercise:
 
 - Problem: Build a basic gRPC service that returns the cube of a number.

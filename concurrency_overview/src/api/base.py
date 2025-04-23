@@ -40,8 +40,6 @@ async def get_all_raw_data() -> List[Dict[str, Any]]:
         logger.error(f"Error retrieving data: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
-Python
-
 # data_pipeline/worker.py
 import logging
 import os

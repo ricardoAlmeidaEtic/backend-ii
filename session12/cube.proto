@@ -1,0 +1,17 @@
+syntax = "proto3";
+package service;
+
+// Define the CubeService
+service CubeService {
+    rpc GetCube (CubeRequest) returns (CubeReply) {}
+}
+
+// Request message containing the number
+message CubeRequest {
+    double number = 1;
+}
+
+// Reply message containing the cube of the number
+message CubeReply {
+    double result = 1;
+}

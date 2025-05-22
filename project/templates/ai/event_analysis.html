@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Event Analysis: {{ event.title }}</h2>
+
+    {% if analysis %}
+        <div class="row">
+            <!-- Registration Stats -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Registration Statistics
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Registration Rate:</strong> {{ analysis.registration_rate|floatformat:1 }}%</p>
+                        <p><strong>Attendance Rate:</strong> {{ analysis.attendance_rate|floatformat:1 }}%</p>
+                        <p><strong>Peak Registration Time:</strong> {{ analysis.peak_registration_time }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Analysis -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Feedback Analysis
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Average Rating:</strong> {{ analysis.average_rating|floatformat:1 }}/5</p>
+                        <p><strong>Sentiment:</strong> {{ analysis.feedback_sentiment }}</p>
+                        <h6>Common Themes:</h6>
+                        <ul>
+                            {% for theme in analysis.feedback_themes %}
+                                <li>{{ theme }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Recommendations
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            {% for recommendation in analysis.recommendations %}
+                                <li class="mb-2">• {{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No analysis data available for this event.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

@@ -4,4 +4,51 @@ services:
     volumes:
       - .:/app
     ports:
-      - 8000:8000
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DB_NAME=event_recommendation_db
+      - DB_USER=your_db_user
+      - DB_PASSWORD=your_db_password
+      - DB_HOST=db
+      - DB_PORT=5432
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=event_recommendation_db
+      - POSTGRES_USER=your_db_user
+      - POSTGRES_PASSWORD=your_db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U your_db_user -d event_recommendation_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+    restart: unless-stopped
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+  ollama_data: 
+
+networks:
+  app-network:

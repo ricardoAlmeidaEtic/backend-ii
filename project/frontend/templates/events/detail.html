@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h1 class="mb-4">{{ event.title }}</h1>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Event Details</h5>
+                <p class="card-text">
+                    <i class="bi bi-calendar"></i>
+                    Start: {{ event.start_date|date:"F d, Y g:i A" }}<br>
+                    End: {{ event.end_date|date:"F d, Y g:i A" }}
+                </p>
+                <p class="card-text">
+                    <i class="bi bi-geo-alt"></i>
+                    {{ event.location }}
+                </p>
+                <p class="card-text">
+                    <i class="bi bi-person"></i>
+                    Organized by {{ event.organizer.username }}
+                </p>
+                <hr>
+                <h6>About this event</h6>
+                <p class="card-text">{{ event.description }}</p>
+            </div>
+        </div>
+
+        {% if event.registrations.all %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Attendees</h5>
+                <div class="list-group list-group-flush">
+                    {% for registration in event.registrations.all %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ registration.user.username }}
+                        <span class="badge {% if registration.status == 'confirmed' %}bg-success{% else %}bg-warning{% endif %}">
+                            {{ registration.status }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Registration</h5>
+                {% if event.is_full %}
+                <div class="alert alert-warning">
+                    This event is full.
+                </div>
+                {% elif is_registered %}
+                <div class="alert alert-success">
+                    You are registered for this event.
+                </div>
+                {% elif user.is_authenticated %}
+                <form action="{% url 'event_register' event.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary w-100">Register Now</button>
+                </form>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary w-100">Login to Register</a>
+                {% endif %}
+
+                <div class="mt-3">
+                    <small class="text-muted">
+                        {{ event.registrations.count }} out of {{ event.capacity }} spots taken
+                    </small>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" {% if progress %}style="width: {{ progress }}%"{% endif %}></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">AI Recommendations</h5>
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item">
+                        <h6 class="mb-1">Similar Events</h6>
+                        <small>Check out related events based on your interests</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

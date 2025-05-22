@@ -16,8 +16,65 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from rest_framework import routers
+from api.views import (
+    EventViewSet,
+    EventRegistrationViewSet,
+    EventCategoryViewSet,
+    EventFeedbackViewSet,
+    RegisterView
+)
+from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
+from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 
+# Create a router and register our viewsets with it
+router = routers.DefaultRouter()
+router.register(r'events', EventViewSet)
+router.register(r'registrations', EventRegistrationViewSet)
+router.register(r'categories', EventCategoryViewSet)
+router.register(r'feedback', EventFeedbackViewSet)
+
+# Web views with HTML renderer only
+web_event_list = EventViewSet.as_view({
+    'get': 'list',
+}, renderer_classes=[TemplateHTMLRenderer])
+
+web_event_detail = EventViewSet.as_view({
+    'get': 'retrieve',
+}, renderer_classes=[TemplateHTMLRenderer])
+
+# The URL patterns
 urlpatterns = [
-    path("admin/", admin.site.urls),
-]
+    # Root URL redirect to events
+    path('', RedirectView.as_view(url='/events/', permanent=False)),
+    
+    # Admin
+    path('admin/', admin.site.urls),
+    
+    # API URLs - JSON endpoints
+    path('api/v1/', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('ai/', include('ai_agents.urls')),
+    
+    # Web URLs - HTML views
+    path('events/', web_event_list, name='event-list'),
+    path('events/<int:pk>/', web_event_detail, name='event-detail'),
+    path('events/create/', EventViewSet.as_view({
+        'get': 'create',
+        'post': 'create'
+    }, renderer_classes=[TemplateHTMLRenderer]), name='event-create'),
+    
+    # Registration endpoint
+    path('events/<int:pk>/register/', 
+         EventRegistrationViewSet.as_view({'post': 'create'}),
+         name='event-registration'),
+    
+    # Authentication URLs
+    path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
+    path('register/', RegisterView.as_view(), name='register'),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

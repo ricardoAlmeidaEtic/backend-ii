@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Event Optimization: {{ event.title }}</h2>
+
+    {% if optimization %}
+        <div class="row">
+            <!-- Timing Recommendations -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Timing Recommendations
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Recommended Time:</strong> {{ optimization.recommended_time }}</p>
+                        <p><strong>Reasoning:</strong> {{ optimization.time_reasoning }}</p>
+                        <p><strong>Recommended Duration:</strong> {{ optimization.recommended_duration }}</p>
+                        <p><strong>Duration Reasoning:</strong> {{ optimization.duration_reasoning }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Capacity Planning -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Capacity Planning
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Recommended Capacity:</strong> {{ optimization.recommended_capacity }}</p>
+                        <p><strong>Reasoning:</strong> {{ optimization.capacity_reasoning }}</p>
+                        <p><strong>Expected Attendance:</strong> {{ optimization.expected_attendance }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketing Strategies -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Marketing Strategies
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            {% for strategy in optimization.marketing_suggestions %}
+                                <li class="mb-2">• {{ strategy }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Recommendations -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        Additional Recommendations
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            {% for recommendation in optimization.additional_recommendations %}
+                                <li class="mb-2">• {{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No optimization data available for this event.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

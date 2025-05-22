@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}My Events{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">My Events</h1>
+        
+        <!-- Events I'm Organizing -->
+        <h2 class="mb-3">Events I'm Organizing</h2>
+        {% if organized_events %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-5">
+                {% for event in organized_events %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.title }}</h5>
+                                <p class="card-text">{{ event.description|truncatewords:30 }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Date: {{ event.start_date|date:"F d, Y" }}<br>
+                                        Location: {{ event.location }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{% url 'event_detail' event.id %}" class="btn btn-primary">View Details</a>
+                                <a href="{% url 'event_update' event.id %}" class="btn btn-secondary">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info mb-5">
+                You haven't created any events yet. 
+                <a href="{% url 'event_create' %}" class="alert-link">Create your first event</a>
+            </div>
+        {% endif %}
+
+        <!-- Events I'm Registered For -->
+        <h2 class="mb-3">Events I'm Registered For</h2>
+        {% if registered_events %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for event in registered_events %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if event.image %}
+                                <img src="{{ event.image.url }}" class="card-img-top" alt="{{ event.title }}">
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ event.title }}</h5>
+                                <p class="card-text">{{ event.description|truncatewords:30 }}</p>
+                                <p class="card-text">
+                                    <small class="text-muted">
+                                        Date: {{ event.start_date|date:"F d, Y" }}<br>
+                                        Location: {{ event.location }}<br>
+                                        Organizer: {{ event.organizer.get_full_name|default:event.organizer.username }}
+                                    </small>
+                                </p>
+                            </div>
+                            <div class="card-footer bg-transparent">
+                                <a href="{% url 'event_detail' event.id %}" class="btn btn-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                You haven't registered for any events yet.
+                <a href="{% url 'event_list' %}" class="alert-link">Browse available events</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

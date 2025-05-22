@@ -2,18 +2,21 @@ all:
 	migration create_superuser up
 
 migrate:
-	python3 manage.py makemigrations && python3 manage.py migrate
+	docker-compose exec web poetry run python manage.py makemigrations
+	docker-compose exec web poetry run python manage.py migrate
 
 up:
-	docker-compose up --build
+	docker compose up --build
+
+build:
+	docker compose build
 
 down:
 	docker-compose down
 	@echo " o projeto..."
 
 createsuperuser:
-	echo "from django.contrib.auth.models import User; User.objects.create_superuser('admin', 'admin@example.com', 'pass')" | python3 manage.py shell
-	@echo "super user criado..."
+	docker-compose exec web poetry run python manage.py createsuperuser
 
 setup: down up migrate createsuperuser
 	@echo "setup completo."

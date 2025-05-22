@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Event List -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">Events</h2>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'event-create' %}" class="btn btn-primary">Create Event</a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for event in events %}
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ event.title }}</h5>
+                                    <p class="card-text">{{ event.description|truncatewords:30 }}</p>
+                                    <p class="card-text">
+                                        <small class="text-muted">
+                                            <strong>Date:</strong> {{ event.start_date|date:"F j, Y" }}
+                                        </small>
+                                    </p>
+                                    <a href="{% url 'event-detail' event.id %}" class="btn btn-primary">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <p>No events found.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="col-md-4">
+            {% if user.is_authenticated %}
+            <div class="card">
+                <div class="card-header">
+                    <h3>Recommended for You</h3>
+                </div>
+                <div class="card-body">
+                    <div id="recommendations-loading" class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="recommendations-content" style="display: none;">
+                        <!-- Recommendations will be loaded here -->
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.getElementById('recommendations-content')) {
+        fetch('{% url "event-recommended" %}')
+            .then(response => response.json())
+            .then(data => {
+                const container = document.getElementById('recommendations-content');
+                if (data.length === 0) {
+                    container.innerHTML = '<p>No recommendations available.</p>';
+                } else {
+                    const recommendations = data.map(event => `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">${event.title}</h5>
+                                <p class="card-text">${event.description.substring(0, 100)}...</p>
+                                <a href="/events/${event.id}/" class="btn btn-sm btn-primary">View Event</a>
+                            </div>
+                        </div>
+                    `).join('');
+                    container.innerHTML = recommendations;
+                }
+                document.getElementById('recommendations-loading').style.display = 'none';
+                container.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching recommendations:', error);
+                document.getElementById('recommendations-loading').style.display = 'none';
+                document.getElementById('recommendations-content').innerHTML = 
+                    '<div class="alert alert-danger">Error loading recommendations.</div>';
+                document.getElementById('recommendations-content').style.display = 'block';
+            });
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

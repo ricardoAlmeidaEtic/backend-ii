@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Event Recommendations{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Personalized Event Recommendations</h1>
+    
+    {% if recommendations %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for rec in recommendations %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ rec.event.title }}</h5>
+                            <p class="card-text">{{ rec.event.description|truncatewords:30 }}</p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Match Score: {{ rec.score|floatformat:2 }}<br>
+                                    {{ rec.reason }}
+                                </small>
+                            </p>
+                            <a href="{% url 'event_detail' rec.event.id %}" class="btn btn-primary">View Event</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No recommendations available yet. Try attending more events to get personalized suggestions!
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

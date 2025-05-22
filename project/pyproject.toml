@@ -1,17 +1,21 @@
 [project]
 name = "project"
 version = "0.1.0"
-description = ""
+description = "Event Management System with AI Integration"
 authors = [
-    {name = "ricardoAlmeidaEtic",email = "ricardo_almeida@eticalgarve.com"}
+    {name = "ricardoAlmeidaEtic", email = "ricardo_almeida@eticalgarve.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.13"
 dependencies = [
-    "django (>=5.2.1,<6.0.0)"
+    "django>=5.2.1,<6.0.0",
+    "djangorestframework>=3.16.0,<4.0.0",
+    "django-cors-headers>=4.3.1,<5.0.0",
+    "psycopg2-binary>=2.9.10,<3.0.0",
+    "crewai>=0.120.1,<0.121.0",
+    "python-dotenv>=1.1.0,<2.0.0",
+    "langchain>=0.1.12,<0.2.0"
 ]
-
-
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

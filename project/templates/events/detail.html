@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Event Basic Info -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h2>{{ event.title }}</h2>
+        </div>
+        <div class="card-body">
+            <p><strong>Date:</strong> {{ event.start_date|date:"F j, Y" }}</p>
+            <p><strong>Location:</strong> {{ event.location }}</p>
+            <p><strong>Capacity:</strong> {{ event.capacity }}</p>
+            <p><strong>Description:</strong> {{ event.description }}</p>
+        </div>
+    </div>
+
+    <!-- AI Analysis Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>AI Analysis</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Registration Stats -->
+                <div class="col-md-6">
+                    <h5>Registration Statistics</h5>
+                    <p><strong>Registration Rate:</strong> {{ analysis.registration_rate|floatformat:1 }}%</p>
+                    <p><strong>Attendance Rate:</strong> {{ analysis.attendance_rate|floatformat:1 }}%</p>
+                    <p><strong>Peak Registration Time:</strong> {{ analysis.peak_registration_time }}</p>
+                </div>
+                
+                <!-- Feedback Analysis -->
+                <div class="col-md-6">
+                    <h5>Feedback Analysis</h5>
+                    <p><strong>Average Rating:</strong> {{ analysis.average_rating|floatformat:1 }}/5</p>
+                    <p><strong>Sentiment:</strong> {{ analysis.feedback_sentiment }}</p>
+                    <h6>Common Themes:</h6>
+                    <ul>
+                        {% for theme in analysis.feedback_themes %}
+                            <li>{{ theme }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Optimization Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>AI Optimization Suggestions</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <!-- Timing Recommendations -->
+                <div class="col-md-6">
+                    <h5>Timing Recommendations</h5>
+                    <p><strong>Recommended Time:</strong> {{ optimization.recommended_time }}</p>
+                    <p><strong>Recommended Duration:</strong> {{ optimization.recommended_duration }}</p>
+                </div>
+
+                <!-- Capacity Planning -->
+                <div class="col-md-6">
+                    <h5>Capacity Planning</h5>
+                    <p><strong>Recommended Capacity:</strong> {{ optimization.recommended_capacity }}</p>
+                    <p><strong>Expected Attendance:</strong> {{ optimization.expected_attendance }}</p>
+                </div>
+
+                <!-- Marketing Strategies -->
+                <div class="col-12 mt-3">
+                    <h5>Marketing Strategies</h5>
+                    <ul>
+                        {% for strategy in optimization.marketing_suggestions %}
+                            <li>{{ strategy }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Registration Section -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Registration</h3>
+        </div>
+        <div class="card-body">
+            {% if user.is_authenticated %}
+                {% if not is_registered %}
+                    <form method="post" action="{% url 'event-registration' event.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary">Register for Event</button>
+                    </form>
+                {% else %}
+                    <div class="alert alert-success">
+                        You are registered for this event!
+                    </div>
+                {% endif %}
+            {% else %}
+                <p>Please <a href="{% url 'login' %}">login</a> to register for this event.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

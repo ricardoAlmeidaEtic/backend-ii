@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Event Optimization{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">AI Event Optimization</h1>
+    
+    {% if optimization %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Scheduling Optimization</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Recommended Time:</strong> {{ optimization.recommended_time }}
+                                <small class="text-muted d-block">
+                                    {{ optimization.time_reasoning }}
+                                </small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Duration:</strong> {{ optimization.recommended_duration }}
+                                <small class="text-muted d-block">
+                                    {{ optimization.duration_reasoning }}
+                                </small>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Capacity Planning</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <strong>Recommended Capacity:</strong> {{ optimization.recommended_capacity }}
+                                <small class="text-muted d-block">
+                                    {{ optimization.capacity_reasoning }}
+                                </small>
+                            </li>
+                            <li class="list-group-item">
+                                <strong>Expected Attendance:</strong> {{ optimization.expected_attendance }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Marketing Suggestions</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for suggestion in optimization.marketing_suggestions %}
+                                <li class="list-group-item">{{ suggestion }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Additional Recommendations</h5>
+                        <ul class="list-group list-group-flush">
+                            {% for recommendation in optimization.additional_recommendations %}
+                                <li class="list-group-item">{{ recommendation }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            No optimization suggestions available for this event yet.
+        </div>
+    {% endif %}
+</div>
+{% endblock %} 

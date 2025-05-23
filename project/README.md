@@ -55,6 +55,38 @@ poetry run python manage.py migrate
 poetry run python manage.py runserver
 ```
 
+## Running Tests
+
+The project includes comprehensive tests for all major features. To run the tests:
+
+1. Run all tests:
+```bash
+poetry run python manage.py test
+```
+
+2. Run tests for a specific app:
+```bash
+poetry run python manage.py test api
+poetry run python manage.py test ai_agents
+```
+
+3. Run a specific test class:
+```bash
+poetry run python manage.py test api.tests.test_events.EventTests
+```
+
+4. Run with coverage report:
+```bash
+poetry run coverage run manage.py test
+poetry run coverage report
+```
+
+Test coverage includes:
+- Event Management (CRUD operations)
+- Event Registration and Attendance
+- AI Integration (recommendations, analysis, optimization)
+- User Authentication and Authorization
+
 ## AI Agents
 
 The system uses Crew AI for:

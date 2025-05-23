@@ -60,18 +60,8 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('ai/', include('ai_agents.urls')),
     
-    # Web URLs - HTML views
-    path('events/', web_event_list, name='event-list'),
-    path('events/<int:pk>/', web_event_detail, name='event-detail'),
-    path('events/create/', EventViewSet.as_view({
-        'get': 'create',
-        'post': 'create'
-    }, renderer_classes=[TemplateHTMLRenderer]), name='event-create'),
-    
-    # Registration endpoint
-    path('events/<int:pk>/register/', 
-         EventRegistrationViewSet.as_view({'post': 'create'}),
-         name='event-registration'),
+    # Frontend URLs
+    path('', include('frontend.urls')),
     
     # Authentication URLs
     path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),

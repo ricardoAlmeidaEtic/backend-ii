@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from api.models import Event, EventRegistration
 from .forms import EventForm
+from django.http import JsonResponse
+from django.utils import timezone
 
 
 def event_list(request):
@@ -101,3 +103,22 @@ def event_register(request, pk):
     
     messages.success(request, 'Successfully registered for the event!')
     return redirect('event_detail', pk=pk)
+
+
+@login_required
+def event_recommended(request):
+    """Get personalized event recommendations for the current user."""
+    # For now, return a simple list of upcoming events
+    # In the future, this can be enhanced with AI-based recommendations
+    upcoming_events = Event.objects.filter(
+        start_date__gte=timezone.now()
+    ).order_by('start_date')[:5]
+    
+    recommendations = [{
+        'id': event.id,
+        'title': event.title,
+        'description': event.description,
+        'start_date': event.start_date.strftime('%Y-%m-%d %H:%M:%S')
+    } for event in upcoming_events]
+    
+    return JsonResponse(recommendations, safe=False)

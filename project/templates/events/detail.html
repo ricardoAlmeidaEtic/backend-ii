@@ -89,7 +89,7 @@
         <div class="card-body">
             {% if user.is_authenticated %}
                 {% if not is_registered %}
-                    <form method="post" action="{% url 'event-registration' event.id %}">
+                    <form method="post" action="{% url 'event_register' event.id %}">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-primary">Register for Event</button>
                     </form>

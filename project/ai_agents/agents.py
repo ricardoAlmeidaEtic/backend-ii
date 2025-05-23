@@ -6,6 +6,9 @@ from django.utils import timezone
 from django.db import models
 from langchain_community.llms import Ollama
 from pydantic import Field, ConfigDict
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+import json
 
 class UserPreferencesTool(BaseTool):
     name: str = "Analyze User Preferences"
@@ -130,11 +133,37 @@ class MarketingStrategiesTool(BaseTool):
 
 class EventAnalysisAgent:
     def __init__(self):
-        # Initialize Ollama with tinyllama using Docker service
+        # Initialize Ollama with tinyllama
         self.llm = Ollama(
-            base_url="http://ollama:11434",  # Using Docker service name
-            model="ollama/tinyllama",  # Include provider prefix
+            base_url="http://ollama:11434",
+            model="tinyllama",
             temperature=0.7
+        )
+        
+        # Initialize recommendation prompt
+        self.recommendation_prompt = PromptTemplate(
+            input_variables=["user_context"],
+            template="""
+            As an AI event recommendation system, analyze the following user context and provide personalized event recommendations.
+            
+            User Context:
+            {user_context}
+            
+            Based on this information, provide recommendations in the following JSON format:
+            {
+                "recommended_categories": ["category1", "category2"],
+                "interests": ["interest1", "interest2"],
+                "explanation": "Brief explanation of recommendations"
+            }
+            
+            Only respond with the JSON object, no other text.
+            """
+        )
+        
+        # Create recommendation chain
+        self.recommendation_chain = LLMChain(
+            llm=self.llm,
+            prompt=self.recommendation_prompt
         )
         
         # Initialize tools
@@ -187,99 +216,26 @@ class EventAnalysisAgent:
             ]
         )
 
-    def get_user_recommendations(self, user) -> List[Dict]:
+    def get_recommendations(self, user_context):
         """Get personalized event recommendations for a user."""
-        # Get user's event history
-        attended_events = EventRegistration.objects.filter(
-            user=user,
-            status='confirmed'
-        ).select_related('event')
-        
-        # Convert attended events to dictionaries
-        events_data = [
-            {
-                'id': reg.event.id,
-                'title': reg.event.title,
-                'description': reg.event.description,
-                'start_date': reg.event.start_date.isoformat() if reg.event.start_date else None,
-                'end_date': reg.event.end_date.isoformat() if reg.event.end_date else None,
-                'location': reg.event.location,
-                'capacity': reg.event.capacity,
-                'categories': [cat.name for cat in reg.event.categories.all()],
-                'registration_date': reg.registration_date.isoformat() if reg.registration_date else None,
-                'attended': reg.attended
-            } for reg in attended_events
-        ]
-        
-        # Get user's preferred categories
-        preferred_categories = EventCategory.objects.filter(
-            events__registrations__user=user,
-            events__registrations__status='confirmed'
-        ).distinct()
-        
-        # Convert categories to list of names
-        category_names = [cat.name for cat in preferred_categories]
-        
-        # Create user data dictionary
-        user_data = {
-            'attended_events': events_data,
-            'preferred_categories': category_names,
-            'user_id': user.id,
-            'username': user.username
-        }
-        
-        # Create recommendation task
-        recommendation_task = Task(
-            description=f"""
-            Analyze the following user data and provide event recommendations:
-            - Past Events: {[event['title'] for event in events_data]}
-            - Preferred Categories: {category_names}
+        try:
+            # Convert user context to string for prompt
+            context_str = json.dumps(user_context, indent=2)
             
-            Consider:
-            1. User's past event types
-            2. Event timing patterns
-            3. Location preferences
-            4. Category interests
-            """,
-            expected_output="""A list of recommended events with scores and reasons for recommendation. 
-            Format: [
-                {
-                    'event_id': int,
-                    'score': float,
-                    'reason': str,
-                    'matching_preferences': List[str]
-                }
-            ]""",
-            agent=self.recommendation_agent
-        )
-        
-        # Create analytics task
-        analytics_task = Task(
-            description=f"""
-            Analyze event participation patterns:
-            1. Most popular event times
-            2. Popular locations
-            3. Category trends
-            4. Registration patterns
-            """,
-            expected_output="""A dictionary containing analysis results:
-            {
-                'popular_times': List[str],
-                'popular_locations': List[str],
-                'category_trends': List[Dict],
-                'registration_patterns': Dict
-            }""",
-            agent=self.analysis_agent
-        )
-        
-        # Create and run the crew
-        crew = Crew(
-            agents=[self.recommendation_agent, self.analysis_agent],
-            tasks=[recommendation_task, analytics_task]
-        )
-        
-        result = crew.kickoff()
-        return self._process_recommendations(result)
+            # Get AI recommendations
+            result = self.recommendation_chain.run(user_context=context_str)
+            
+            # Parse JSON response
+            recommendations = json.loads(result)
+            return recommendations
+            
+        except Exception as e:
+            # Return default recommendations on error
+            return {
+                "recommended_categories": [],
+                "interests": [],
+                "explanation": "Unable to generate personalized recommendations"
+            }
 
     def analyze_event_performance(self, event_id: int) -> Dict:
         """Analyze performance metrics for an event."""

@@ -17,22 +17,21 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
-from rest_framework import routers
+from rest_framework.routers import DefaultRouter
 from api.views import (
     EventViewSet,
     EventRegistrationViewSet,
     EventCategoryViewSet,
-    EventFeedbackViewSet,
-    RegisterView
+    EventFeedbackViewSet
 )
 from django.contrib.auth import views as auth_views
-from django.views.generic import RedirectView
 from rest_framework.renderers import TemplateHTMLRenderer, JSONRenderer, BrowsableAPIRenderer
 
-# Create a router and register our viewsets with it
-router = routers.DefaultRouter()
+# Create a router for API views
+router = DefaultRouter()
 router.register(r'events', EventViewSet)
 router.register(r'registrations', EventRegistrationViewSet)
 router.register(r'categories', EventCategoryViewSet)
@@ -58,13 +57,14 @@ urlpatterns = [
     # API URLs - JSON endpoints
     path('api/v1/', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
-    path('ai/', include('ai_agents.urls')),
     
     # Frontend URLs
     path('', include('frontend.urls')),
     
+    # AI URLs
+    path('ai/', include('ai_agents.urls')),
+    
     # Authentication URLs
     path('login/', auth_views.LoginView.as_view(template_name='auth/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='/'), name='logout'),
-    path('register/', RegisterView.as_view(), name='register'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

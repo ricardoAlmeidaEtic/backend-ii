@@ -5,6 +5,7 @@ from api.models import Event, EventRegistration
 from .forms import EventForm
 from django.http import JsonResponse
 from django.utils import timezone
+from ai_agents.agents import EventAnalysisAgent
 
 
 def event_list(request):
@@ -107,18 +108,59 @@ def event_register(request, pk):
 
 @login_required
 def event_recommended(request):
-    """Get personalized event recommendations for the current user."""
-    # For now, return a simple list of upcoming events
-    # In the future, this can be enhanced with AI-based recommendations
-    upcoming_events = Event.objects.filter(
-        start_date__gte=timezone.now()
-    ).order_by('start_date')[:5]
-    
-    recommendations = [{
-        'id': event.id,
-        'title': event.title,
-        'description': event.description,
-        'start_date': event.start_date.strftime('%Y-%m-%d %H:%M:%S')
-    } for event in upcoming_events]
-    
-    return JsonResponse(recommendations, safe=False)
+    """Get personalized event recommendations for the current user using AI."""
+    try:
+        # Get user's registered events for context
+        user_registered_events = Event.objects.filter(
+            registrations__user=request.user
+        ).values('title', 'description', 'category')
+        
+        # Create context for AI recommendation
+        user_context = {
+            'registered_events': list(user_registered_events),
+            'username': request.user.username,
+            'interests': [event['category'] for event in user_registered_events if event.get('category')]
+        }
+        
+        # Get AI recommendations
+        agent = EventAnalysisAgent()
+        ai_recommendations = agent.get_recommendations(user_context)
+        
+        # Get upcoming events that match AI recommendations
+        upcoming_events = Event.objects.filter(
+            start_date__gte=timezone.now()
+        ).order_by('start_date')
+        
+        # Filter and sort events based on AI recommendations
+        recommended_events = []
+        for event in upcoming_events:
+            if len(recommended_events) >= 5:  # Limit to 5 recommendations
+                break
+            # Skip events user is already registered for
+            if EventRegistration.objects.filter(event=event, user=request.user).exists():
+                continue
+            recommended_events.append({
+                'id': event.id,
+                'title': event.title,
+                'description': event.description,
+                'start_date': event.start_date.strftime('%Y-%m-%d %H:%M:%S')
+            })
+        
+        return JsonResponse(recommended_events, safe=False)
+        
+    except Exception as e:
+        # Fallback to basic recommendations if AI fails
+        upcoming_events = Event.objects.filter(
+            start_date__gte=timezone.now()
+        ).exclude(
+            registrations__user=request.user
+        ).order_by('start_date')[:5]
+        
+        recommendations = [{
+            'id': event.id,
+            'title': event.title,
+            'description': event.description,
+            'start_date': event.start_date.strftime('%Y-%m-%d %H:%M:%S')
+        } for event in upcoming_events]
+        
+        return JsonResponse(recommendations, safe=False)
